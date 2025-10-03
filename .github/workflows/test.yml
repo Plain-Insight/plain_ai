@@ -1,0 +1,30 @@
+name: 자동 테스트
+
+# 언제 실행할지 정의
+on:
+  push:
+    branches: [ main, test ]
+  pull_request:
+    branches: [ main ]
+
+# 실행할 작업들
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 코드 체크아웃
+      uses: actions/checkout@v3
+    
+    - name: Python 설정
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+    
+    - name: 의존성 설치
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+    
+    - name: 테스트 실행
+      run: pytest
