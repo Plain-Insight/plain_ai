@@ -1,37 +1,30 @@
-# Insight Project
+# Plain AI - RSI 진단 분석 채팅
 
-새로운 프로젝트입니다.
+Gemini AI를 활용한 웹 기반 채팅 인터페이스
 
-## 시작하기
+## 설치 및 실행
 
-이 프로젝트에 대한 설명을 여기에 작성하세요.
+```bash
+# 1. 저장소 클론
+git clone https://github.com/Plain-Insight/plain_ai.git
+cd plain_ai
 
-## 환경 설정
+# 2. Node.js 의존성 설치
+npm install
 
-1. Python 3.13 이상이 설치되어 있는지 확인하세요.
+# 3. 환경변수 설정
+cp .env.example .env
+# .env 파일을 열어서 GOOGLE_API_KEY=your_api_key_here 입력
 
-2. 필요한 패키지를 설치하세요:
-
-   ```shell
-   pip install -r requirements.txt
-   ```
-
-3. 환경 변수 설정:
-
-   - `.env.example` 파일을 복사하여 `.env` 파일을 생성하세요:
-
-     ```shell
-     cp .env.example .env
-     ```
-
-   - `.env` 파일을 열고 `GOOGLE_API_KEY`에 실제 Google Generative AI API 키를 입력하세요.
-
-## 사용법
-
-`api.py`를 실행하여 Gemini AI와 채팅을 시작하세요:
-
-```shell
-python api.py
+# 4. 서버 실행
+npm start
 ```
 
-채팅 중 'quit'라고 입력하면 종료됩니다.
+## 접속
+
+브라우저에서 <http://localhost:3000> 접속
+
+## 요구사항
+
+- Node.js 16+
+- Google Gemini API 키

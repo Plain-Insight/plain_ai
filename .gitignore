@@ -1,7 +1,19 @@
+# Dependencies
 node_modules/
-*.log
+
+# Environment variables
 .env
+
+# Logs
+*.log
+
+# OS generated files
 .DS_Store
+Thumbs.db
+
+# Temporary files
 *.tmp
+
+# Build outputs
 dist/
 build/
