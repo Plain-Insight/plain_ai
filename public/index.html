@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 진단 분석</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #1a1a1a;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-header .icon {
+            width: 24px;
+            height: 24px;
+            background: #4CAF50;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .chat-list {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .chat-item {
+            background: #2a5a8a;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chat-item:hover {
+            background: #3a6a9a;
+        }
+
+        .chat-item.active {
+            background: #4a7aaa;
+        }
+
+        .chat-item-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .chat-item-preview {
+            font-size: 12px;
+            color: #b3b3b3;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0a0a0a;
+        }
+
+        .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #333;
+            background: #1a1a1a;
+        }
+
+        .chat-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .status-bar {
+            padding: 12px 24px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #2a2a2a;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .status-badge {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .status-badge.green { background: #4CAF50; }
+        .status-badge.blue { background: #2196F3; }
+        .status-badge.red { background: #f44336; }
+
+        .chat-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: #0a0a0a;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.ai {
+            align-items: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #2a5a8a;
+            color: #ffffff;
+        }
+
+        .message.ai .message-content {
+            background: #2a2a2a;
+            color: #ffffff;
+            border: 1px solid #444;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #888;
+            margin-top: 6px;
+            margin-bottom: 4px;
+        }
+
+        .chat-input-container {
+            padding: 24px;
+            background: #1a1a1a;
+            border-top: 1px solid #333;
+        }
+
+        .chat-input-wrapper {
+            background: #2a2a2a;
+            border-radius: 24px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #444;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .chat-input::placeholder {
+            color: #888;
+        }
+
+        .send-button {
+            width: 40px;
+            height: 40px;
+            background: #4CAF50;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            margin-right: 4px;
+        }
+
+        .send-button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 16px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .connection-status {
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 12px;
+            background: #1a4a1a;
+            color: #4CAF50;
+            border-bottom: 1px solid #2a5a2a;
+        }
+
+        .connection-status.error {
+            background: #4a1a1a;
+            color: #f44336;
+            border-bottom-color: #5a2a2a;
+        }
+
+        .bottom-tabs {
+            display: flex;
+            background: #1a1a1a;
+            border-top: 1px solid #333;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: #4CAF50;
+            background: #0a2a0a;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                width: 100%;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="icon">🤖</div>
+                <div class="sidebar-title">AI 진단 분석</div>
+            </div>
+            <div class="chat-list">
+                <div class="chat-item active">
+                    <div class="chat-item-title">RSI 30 이하 매수, 70 이상 매도</div>
+                    <div class="chat-item-preview">RSI 진단을 분석했습니다. 다음 조건들을 추천드립니다.</div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-item-title">RSI 70 이상 매도</div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-item-title">RSI 30 이하 매수</div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-item-title">RSI 중성적 방향</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="chat-header">
+                <div class="chat-title">전략 생성</div>
+            </div>
+            
+            <div class="status-bar">
+                <div class="status-item">
+                    <span>중복 필터</span>
+                    <div class="status-badge green">0</div>
+                </div>
+                <div class="status-item">
+                    <span>매수 조건</span>
+                    <div class="status-badge blue">0</div>
+                </div>
+                <div class="status-item">
+                    <span>매도 조건</span>
+                    <div class="status-badge red">0</div>
+                </div>
+            </div>
+            
+            <div id="connectionStatus" class="connection-status">
+                연결 중...
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">
+                    <div class="message-content">
+                        안녕하세요! 저는 AI 진단 분석 시스템입니다. 투자 전략과 RSI 분석에 대해 무엇이든 물어보세요! �
+                    </div>
+                    <div class="message-time" id="welcomeTime"></div>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                AI가 분석하고 있습니다...
+            </div>
+            
+            <div class="chat-input-container">
+                <form id="chatForm">
+                    <div class="chat-input-wrapper">
+                        <input 
+                            type="text" 
+                            class="chat-input" 
+                            id="messageInput" 
+                            placeholder="질문을 자유로이 입력하세요..." 
+                            autocomplete="off"
+                        >
+                        <button type="submit" class="send-button" id="sendButton">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22,2 15,22 11,13 2,9"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="bottom-tabs">
+                <div class="tab active">RSI 전략</div>
+                <div class="tab">골든크로스 전략</div>
+                <div class="tab">볼린저밴드 전략</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ChatApp {
+            constructor() {
+                this.sessionId = null;
+                this.messageInput = document.getElementById('messageInput');
+                this.chatMessages = document.getElementById('chatMessages');
+                this.sendButton = document.getElementById('sendButton');
+                this.loading = document.getElementById('loading');
+                this.connectionStatus = document.getElementById('connectionStatus');
+                this.chatForm = document.getElementById('chatForm');
+                
+                this.init();
+            }
+
+            async init() {
+                // 환영 메시지 시간 설정
+                document.getElementById('welcomeTime').textContent = this.getCurrentTime();
+                
+                // 이벤트 리스너 설정
+                this.chatForm.addEventListener('submit', (e) => this.handleSubmit(e));
+                this.messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.handleSubmit(e);
+                    }
+                });
+
+                // 채팅 아이템 클릭 이벤트
+                document.querySelectorAll('.chat-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+                    });
+                });
+
+                // 탭 클릭 이벤트
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                    });
+                });
+
+                // 채팅 세션 시작
+                await this.startChatSession();
+            }
+
+            async startChatSession() {
+                try {
+                    const response = await fetch('/api/start-chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.sessionId = data.sessionId;
+                        this.updateConnectionStatus('연결됨 ✅', false);
+                        this.messageInput.focus();
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    console.error('채팅 세션 시작 오류:', error);
+                    this.updateConnectionStatus('연결 실패 ❌ - API 키를 확인하세요', true);
+                }
+            }
+
+            async handleSubmit(e) {
+                e.preventDefault();
+                
+                const message = this.messageInput.value.trim();
+                if (!message || !this.sessionId) return;
+
+                // 사용자 메시지 추가
+                this.addMessage(message, 'user');
+                this.messageInput.value = '';
+                this.setLoading(true);
+
+                try {
+                    const response = await fetch('/api/send-message', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            sessionId: this.sessionId,
+                            message: message
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.addMessage(data.response, 'ai');
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    console.error('메시지 전송 오류:', error);
+                    this.addMessage('죄송합니다. 오류가 발생했습니다. 다시 시도해주세요.', 'ai');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            addMessage(content, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                contentDiv.textContent = content;
+                
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'message-time';
+                timeDiv.textContent = this.getCurrentTime();
+                
+                messageDiv.appendChild(contentDiv);
+                messageDiv.appendChild(timeDiv);
+                
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            setLoading(isLoading) {
+                if (isLoading) {
+                    this.loading.classList.add('show');
+                    this.sendButton.disabled = true;
+                } else {
+                    this.loading.classList.remove('show');
+                    this.sendButton.disabled = false;
+                    this.messageInput.focus();
+                }
+            }
+
+            updateConnectionStatus(message, isError) {
+                this.connectionStatus.textContent = message;
+                this.connectionStatus.className = `connection-status ${isError ? 'error' : ''}`;
+            }
+
+            getCurrentTime() {
+                return new Date().toLocaleTimeString('ko-KR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            scrollToBottom() {
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+        }
+
+        // 애플리케이션 시작
+        document.addEventListener('DOMContentLoaded', () => {
+            new ChatApp();
+        });
+    </script>
+</body>
+</html>
